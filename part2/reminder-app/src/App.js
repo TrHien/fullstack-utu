@@ -21,18 +21,24 @@ class App extends React.Component {
 
   addReminder = (event) => {
     event.preventDefault()
-    console.log('Success')
+    // console.log('Success')
     const reminderObject = {
       name: this.state.newName,
       timestamp: new Date(),
     }
 
-    const reminders = this.state.reminders.concat(reminderObject)
+    const existingName = this.state.reminders.map((reminder) => reminder.name)
 
-    this.setState({
-      reminders,
-      newName: '',
-    })
+    if (existingName.indexOf(this.state.newName) !== -1) {
+      alert(`${this.state.newName} is already added to reminder`)
+      this.setState({ newName: '' })
+    } else {
+      const reminders = this.state.reminders.concat(reminderObject)
+      this.setState({
+        reminders,
+        newName: '',
+      })
+    }
   }
 
   render() {
