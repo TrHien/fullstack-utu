@@ -1,7 +1,7 @@
 import React from 'react'
 import Reminder from './components/Reminder'
 import ReminderForm from './components/ReminderForm'
-import axios from 'axios'
+import reminderService from './services/reminderService'
 
 class App extends React.Component {
   constructor(props) {
@@ -20,9 +20,8 @@ class App extends React.Component {
 
   componentDidMount() {
     console.log('did mount')
-    axios.get('http://localhost:3001/reminders').then((response) => {
-      console.log('promise fulfilled')
-      this.setState({ reminders: response.data })
+    reminderService.getAll().then((reminders) => {
+      this.setState({ reminders })
     })
   }
 
@@ -53,12 +52,36 @@ class App extends React.Component {
       timestamp: timestampDate.toISOString(),
     }
 
-    const reminders = this.state.reminders.concat(reminderObject)
-    this.setState({
-      reminders,
-      newName: '',
-      newTime: '',
-    })
+    reminderService
+      .create(reminderObject)
+      .then((newReminder) => {
+        const reminders = this.state.reminders.concat(newReminder)
+        this.setState({
+          reminders,
+          newName: '',
+          newTime: '',
+        })
+        console.log(`Added new reminder`)
+      })
+      .catch((error) => {
+        console.log(error)
+      })
+  }
+
+  deleteReminder = (id) => {
+    if (window.confirm(`Do you really want to delete this?`)) {
+      reminderService
+        .remove(id)
+        .then((response) => {
+          this.setState({
+            reminders: this.state.reminders.filter(
+              (reminder) => reminder.id !== id
+            ),
+          })
+          console.log(`Successfully delete`)
+        })
+        .catch((error) => console.log(error))
+    }
   }
 
   render() {
@@ -78,7 +101,11 @@ class App extends React.Component {
         <h2>Reminders</h2>
 
         {this.state.reminders.map((reminder) => (
-          <Reminder key={reminder.name} reminder={reminder} />
+          <Reminder
+            key={reminder.name}
+            reminder={reminder}
+            removeOnClick={this.deleteReminder}
+          />
         ))}
       </div>
     )
