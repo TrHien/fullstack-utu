@@ -1,4 +1,7 @@
 import React from 'react'
+import Reminder from './components/Reminder'
+import ReminderForm from './components/ReminderForm'
+import axios from 'axios'
 
 class App extends React.Component {
   constructor(props) {
@@ -11,52 +14,71 @@ class App extends React.Component {
         },
       ],
       newName: '',
-      filteredName: '',
+      newTime: '',
     }
   }
 
-  handleReminder = (event) => {
+  componentDidMount() {
+    console.log('did mount')
+    axios.get('http://localhost:3001/reminders').then((response) => {
+      console.log('promise fulfilled')
+      this.setState({ reminders: response.data })
+    })
+  }
+
+  // Input handle
+  handleReminderChange = (event) => {
     this.setState({ newName: event.target.value })
   }
 
+  handleTimeChange = (event) => {
+    this.setState({ newTime: event.target.value })
+  }
+
+  // Add form
   addReminder = (event) => {
     event.preventDefault()
-    // console.log('Success')
-    const reminderObject = {
-      name: this.state.newName,
-      timestamp: new Date(),
-    }
 
     const existingName = this.state.reminders.map((reminder) => reminder.name)
 
     if (existingName.indexOf(this.state.newName) !== -1) {
       alert(`${this.state.newName} is already added to reminder`)
       this.setState({ newName: '' })
-    } else {
-      const reminders = this.state.reminders.concat(reminderObject)
-      this.setState({
-        reminders,
-        newName: '',
-      })
     }
+
+    const timestamp = Date.parse(this.state.newTime)
+    const timestampDate = isNaN(timestamp) ? new Date() : new Date(timestamp)
+    const reminderObject = {
+      name: this.state.newName,
+      timestamp: timestampDate.toISOString(),
+    }
+
+    const reminders = this.state.reminders.concat(reminderObject)
+    this.setState({
+      reminders,
+      newName: '',
+      newTime: '',
+    })
   }
 
   render() {
+    console.log('render')
     return (
       <div>
         <h2>Add Reminders</h2>
-        <form onSubmit={this.addReminder}>
-          <div>
-            Topic:{' '}
-            <input value={this.state.newName} onChange={this.handleReminder} />
-          </div>
-          <div>
-            <button type="submit">Add</button>
-          </div>
-        </form>
+
+        <ReminderForm
+          submitHandle={this.addReminder}
+          name={this.state.newName}
+          nameOnChange={this.handleReminderChange}
+          time={this.state.newTime}
+          timeOnChange={this.handleTimeChange}
+        />
+
         <h2>Reminders</h2>
-        {this.state.reminders.map((topic) => (
-          <p key={topic.name}>{topic.name}</p>
+
+        {this.state.reminders.map((reminder) => (
+          <Reminder key={reminder.name} reminder={reminder} />
         ))}
       </div>
     )
