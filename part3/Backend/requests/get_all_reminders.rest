@@ -1,0 +1,16 @@
+GET http://localhost:3001/api/reminders/
+
+###
+GET http://localhost:3001/api/reminders/6075a2222032e23b44af16a2
+
+###
+DELETE  http://localhost:3001/api/reminders/6075a2222032e23b44af16a2
+
+###
+POST  http://localhost:3001/api/reminders/
+Content-Type: application/json
+
+{
+  "name": "Wash clothes",
+  "timestamp": "2021-11-11T09:00:00.000Z"
+}
