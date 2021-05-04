@@ -1,48 +1,22 @@
-import { Alert, ScrollView, Text, View } from 'react-native'
-import React, { useState } from 'react'
+import { ScrollView, Text, View } from 'react-native'
 
-import NoteForm from './NoteForm'
+import Navigation from './Navigation'
+import React from 'react'
 import styles from '../Styles'
 
-const NoteList = () => {
-  const [notes, setNotes] = useState([])
-
-  const addNote = (input) => {
-    const existingNote = notes.filter((note) => note === input)
-    if (existingNote.length > 0) {
-      Alert.alert('Warning!', 'Note already exists', [
-        {
-          text: 'OK',
-          onPress: () => {
-            return null
-          },
-        },
-      ])
-    } else if (input.length === 0) {
-      Alert.alert('Warning!', 'Please input note', [
-        {
-          text: 'OK',
-          onPress: () => {
-            return null
-          },
-        },
-      ])
-    } else {
-      setNotes(notes.concat(input))
-    }
-  }
-
+const NoteList = ({ navigation, notes }) => {
   return (
     <View style={{ flex: 1 }}>
-      <ScrollView style={styles.noteList}>
+      <ScrollView style={styles.noteList} contentContainerStyle={styles.center}>
         {notes.map((note, index) => {
           return <Note key={index} name={note} />
         })}
       </ScrollView>
 
-      <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        <NoteForm onPress={addNote} />
-      </View>
+      <Navigation
+        title="NEW NOTE"
+        navigate={() => navigation.navigate('New note')}
+      />
     </View>
   )
 }
